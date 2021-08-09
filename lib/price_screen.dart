@@ -12,9 +12,19 @@ class _PriceScreenState extends State<PriceScreen> {
   String? selectedCurrency = 'USD';
 
   DropdownButton<String> androidDropdown() {
+    List<DropdownMenuItem<String>> dropdownItems = [];
+
+    for (String currency in currenciesList) {
+      var newItem = DropdownMenuItem(
+        child: Text(currency),
+        value: currency,
+      );
+      dropdownItems.add(newItem);
+    }
+
     return DropdownButton<String>(
       value: selectedCurrency,
-      items: getDropdownItems(),
+      items: dropdownItems,
       onChanged: (value) {
         setState(() {
           selectedCurrency = value;
@@ -23,33 +33,16 @@ class _PriceScreenState extends State<PriceScreen> {
     );
   }
 
-  List<DropdownMenuItem<String>> getDropdownItems() {
-    String currency;
-    List<DropdownMenuItem<String>> dropdownItems = [];
-
-    for (currency in currenciesList) {
-      var newItem = DropdownMenuItem(
-        child: Text(currency),
-        value: currency,
-      );
-      dropdownItems.add(newItem);
-    }
-    return dropdownItems;
-  }
-
-  List<Widget> getPickerItem() {
+  CupertinoPicker iosPicker() {
     List<Widget> pickerItems = [];
-    String currency;
-    for (currency in currenciesList) {
+
+    for (String currency in currenciesList) {
       pickerItems.add(Text(currency));
     }
-    return pickerItems;
-  }
 
-  CupertinoPicker iosPicker() {
     return CupertinoPicker(
       backgroundColor: Colors.lightBlue,
-      children: getPickerItem(),
+      children: pickerItems,
       itemExtent: 32.0,
       onSelectedItemChanged: (selectedIndex) {
         // print(selectedIndex);
