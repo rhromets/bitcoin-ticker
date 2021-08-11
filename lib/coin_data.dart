@@ -22,6 +22,7 @@ const List<String> currenciesList = [
   'SEK',
   'SGD',
   'USD',
+  'UAH',
   'ZAR'
 ];
 
@@ -31,30 +32,23 @@ const List<String> cryptoList = [
   'LTC',
 ];
 
-const apiKey = "DC6910B8-6D7D-480A-8105-526B0F8F428E";
-const String asset_id_base = "BTC";
-const String asset_id_quote = "USD";
-const coinAPI =
-    "https://rest.coinapi.io/v1/exchangerate/$asset_id_base/$asset_id_quote";
+// const apiKey = "DC6910B8-6D7D-480A-8105-526B0F8F428E";
+const apiKey1 = "902F66FD-86C1-4260-940B-4795E14BE810";
+const coinAPI = "https://rest.coinapi.io/v1/exchangerate";
 
 class CoinData {
-  Future<dynamic> getCoinData() async {
+  Future<dynamic> getCoinData(String selectedCurrency) async {
+    String reqUrl = "$coinAPI/BTC/$selectedCurrency";
     http.Response response =
-        await http.get(Uri.parse("$coinAPI?apiKey=$apiKey"));
+        await http.get(Uri.parse("$reqUrl?apiKey=$apiKey1"));
 
     if (response.statusCode == 200) {
-      String data = response.body;
-      var resSideBase = jsonDecode(response.body)['src_side_base'];
-      for (var currency in resSideBase) {
-        if (currency['asset'] == 'USD') {
-          int usdCurrency = currency['rate'].toInt();
-          return usdCurrency.toString();
-        }
-      }
-
-      // return jsonDecode(data);
+      var decodedData = jsonDecode(response.body);
+      double rate = decodedData['rate'];
+      return rate.toStringAsFixed(0);
     } else {
       print(response.statusCode);
+      throw 'Problem with the get request';
     }
   }
 }
