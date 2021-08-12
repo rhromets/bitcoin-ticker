@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:bitcoin_ticker/coin_data.dart';
 import 'dart:io' show Platform;
 import 'coin_data.dart';
+import 'card_field.dart';
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -11,8 +12,7 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String selectedCurrency = currenciesList[0];
-  String? currencyData;
-  CoinData coinData = CoinData();
+  Map<String, String> coinData = {};
 
   DropdownButton<String> androidDropdown() {
     List<DropdownMenuItem<String>> dropdownItems = [];
@@ -55,11 +55,15 @@ class _PriceScreenState extends State<PriceScreen> {
     );
   }
 
+  bool isWaiting = false;
+
   Future getData() async {
+    isWaiting = true;
     try {
-      var data = await coinData.getCoinData(selectedCurrency);
+      var data = await CoinData().getCoinData(selectedCurrency);
+      isWaiting = false;
       setState(() {
-        currencyData = data;
+        coinData = data;
       });
     } catch (e) {
       print(e);
@@ -72,6 +76,24 @@ class _PriceScreenState extends State<PriceScreen> {
     getData();
   }
 
+  String crypto = "AUD";
+
+  List<Widget> getCardFields() {
+    List<CardField> cardFields = [];
+
+    for (var cryptoName in cryptoList) {
+      crypto = cryptoName.toString();
+      cardFields.add(
+        CardField(
+          cryptoName: isWaiting ? "?" : crypto,
+          currencyData: coinData[crypto],
+          selectedCurrency: selectedCurrency,
+        ),
+      );
+    }
+    return cardFields;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,26 +104,8 @@ class _PriceScreenState extends State<PriceScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 BTC = ${currencyData == null ? "?" : currencyData} $selectedCurrency',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
+          Column(
+            children: getCardFields(),
           ),
           Container(
             height: 150.0,
